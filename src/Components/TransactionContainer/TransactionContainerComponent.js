@@ -43,6 +43,11 @@ function TransactionContainer(props) {
       const response = await addTransaction(transactionForm);
 
       setOnLoading(false);
+
+      if(!response) {
+        setError("Couldn't make request. Please check your internet connection");
+        return;
+    }
       
       if(response.status !== 201) {
         setError("Couldn't add transaction. Check your internet connection")
@@ -79,6 +84,11 @@ function TransactionContainer(props) {
   
   const handleDeleteTransaction = async (transactionId) => {
     const response = await deleteTransaction(transactionId);
+
+    if(!response) {
+      setError("Couldn't make request. Please check your internet connection");
+      return;
+  }
 
     if(response.status !== 200) {
       return console.log(error.response.data);
@@ -147,6 +157,11 @@ function TransactionContainer(props) {
             "Authorization": `Bearer ${user.token}`
           }
         })
+
+        if(!response) {
+          setError("Couldn't make request. Please check your internet connection");
+          return;
+      }
 
         // Get the response and map each to an array with only the title, amount, and type properties of each transaction
         const recentTransactions = response.data.map(transaction => {

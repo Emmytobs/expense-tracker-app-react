@@ -17,7 +17,6 @@ function TransactionHistory(props) {
       return (
         <div>
           <AmountLeftComponent amountRemaining={props.amountRemaining} />
-  
           <div
             className="w-3/4 sm:max-w-md lg:max-w-md mx-auto py-4 px-2 mt-5 bg-white"
             style={{maxHeight: '400px', overflow: 'auto'}}>

@@ -1,11 +1,10 @@
 import React, { useContext } from 'react';
-import auth from '../auth/auth';
 import SignUp from './SignUp'
 import LogIn from './LogIn'
-import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
 function HomeComponent(props) {
+    
 
     const auth = useContext(AuthContext);
     const [loadingState, setLoadingState] = React.useState(false);
@@ -25,13 +24,17 @@ function HomeComponent(props) {
         password: '',
     });
 
+    React.useEffect(() => {
+        setError('')
+    }, [page])
+
     // Checks if there is a user in local storage
     // If there is go straight to the app
     const savedUser = JSON.parse(localStorage.getItem('user'));
     if(savedUser) {
        window.location = "/app";
        return;
-    }
+    }    
 
     const loginUser = async (e) => {
         e.preventDefault();
@@ -46,6 +49,11 @@ function HomeComponent(props) {
         const response = await auth.loginUser(loginData);
 
         setLoadingState(false);
+
+        if(!response) {
+            setError("Couldn't make request. Please check your internet connection");
+            return;
+        }
 
         if(response.status === 404) {
             // An object is returned from the server with a property of errorMessage pointing to the appropriate error message
@@ -79,9 +87,23 @@ function HomeComponent(props) {
         const response = await auth.signUpUser(signUpData);
 
         setLoadingState(false);
+
+        if(!response) {
+            setError("Couldn't make request. Please check your internet connection");
+            return;
+        }
+
         if(response.status === 201) {
-            // No errors, everything went well. A user was successfully created
+            // Destructure the data object from the response
+            const { data } = response;
+            // Create a user variable to only contain the username and the token
+            const user = { username: data.user.username, token: data.token };
+            // Set the user state
+            auth.setUser(user);
+            // No errors, everything went well. User is successfully logged in
             setError('')
+            localStorage.setItem('user', JSON.stringify(user));
+            // Take the user to the app
             props.history.push('/app')
         } else {
             // An object is returned from the server with a property of "errorMessage" pointing to the appropriate error message
@@ -99,8 +121,6 @@ function HomeComponent(props) {
         const { name, value } = e.target;
         setSignUpData({ ...signUpData, [name]: value });
     }
-
-    
 
     if(page === 'log in') {
         return (
